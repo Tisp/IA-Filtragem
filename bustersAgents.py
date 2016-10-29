@@ -159,32 +159,33 @@ class GreedyBustersAgent(BustersAgent):
         pacmanPosition = gameState.getPacmanPosition()
         legalPositions = []
         livingGhosts = gameState.getLivingGhosts()
-        livingGhostPositionDistributions = [beliefs for i,beliefs
-                                            in enumerate(self.ghostBeliefs)
-                                            if livingGhosts[i+1]]
-
-
-
-        bestAction = None
-        bestActionDist = None
-
+	ghostDists = []
+        bestMove = None
+        bestMoveDist = None
+	i = 0
 
         for l in gameState.getLegalPacmanActions():
             legalPositions.append(l)
-        
-        for dist in livingGhostPositionDistributions:
-            mostLikelyPos = None
-            mostLikelyProb = None
+
+	for b in self.ghostBeliefs:
+		if livingGhosts[i + 1]:
+        		ghostDists.append(b)
+		i += 1
+
+        for dist in ghostDists:
+
+            posPos = None
+            posProb = None
+
             for pos, prob in dist.items():
-                if mostLikelyProb == None or prob > mostLikelyProb:
-                    mostLikelyPos = pos
-                    mostLikelyProb = prob
+                if posProb is None or prob > posProb:
+                    posPos = pos
+                    posProb = prob
 
-            for action in legalPositions:
-                newPos = Actions.getSuccessor(pacmanPosition, action)
-                d = self.distancer.getDistance(newPos, mostLikelyPos)
-                if bestAction == None or d < bestActionDist:
-                    bestAction = action
-                    bestActionDist = d
+            for a in legalPositions:
+                nPos = Actions.getSuccessor(pacmanPosition, a)
+                d = self.distancer.getDistance(nPos, posPos)
+                if bestMove is None or d < bestMoveDist:
+                    bestMove, bestMoveDist = a, d
 
-        return bestAction
+        return bestMove
